@@ -1,19 +1,14 @@
 ---
-format:
-  html:
-    css: lproof.css
-    theme: cosmo
-filters: [lproof.lua]
+filters:
+    - lproof
 ---
 This is a simple linear proof
 
 ::: {.lproof} :::
 
-    1.       $P$                       [Premise]
-    2.       $(P \vee R)\rightarrow Q$ [Premise]
-    3.       $P\vee R$                 [Weakening: 1]
-    $n$.       $Q$                     [Modus Ponens: 2, 3]
-    $n$ + 1. $R$                       [Modus Ponens: 2, $n$]
+    1. $P$                  [Premise]
+    2. $P\rightarrow Q$     [Premise]
+    3. $Q$                  [Modus Ponens: 1, 2]
 
 :::
 
