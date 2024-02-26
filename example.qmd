@@ -1,0 +1,48 @@
+---
+format:
+  html:
+    css: lproof.css
+    theme: cosmo
+filters: [lproof.lua]
+---
+This is a simple linear proof
+
+::: {.lproof} :::
+
+    1.       $P$                       [Premise]
+    2.       $(P \vee R)\rightarrow Q$ [Premise]
+    3.       $P\vee R$                 [Weakening: 1]
+    $n$.       $Q$                     [Modus Ponens: 2, 3]
+    $n$ + 1. $R$                       [Modus Ponens: 2, $n$]
+
+:::
+
+This is a simple linear proof in math mode
+
+::: {.lproof .as-math} :::
+    
+    1. P                       [Premise]
+    2. (P \vee R)\rightarrow Q [Premise]
+    3. P\vee R                 [Weakening: 1]
+    4. Q                       [Modus Ponens: 2, 3]
+
+:::
+
+This is a Fitch-style proof
+
+::: {.lproof} :::
+
+    1. |_ $P \rightarrow Q$   
+    2. | |_ $\neg Q$
+    3. | | |_ $P$  
+    4. | | |  $Q$    [Hypothesis: 1, 3]
+    5. | | |  $\bot$ [Modus Ponens: 2, 4]
+    6. | | $\neg P$      [$\neg E$: 3-5]
+    7. | $\neg Q \rightarrow \neg P$  [$\rightarrow I$: 2-6]
+
+:::
+
+
+
+
+          
