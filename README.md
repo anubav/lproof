@@ -6,7 +6,7 @@ quarto markdown.
 ## Installation
 
 ```sh
-quarto add https://github.com/anubav/lproof.git
+quarto add https://github.com/anubav/lproof/archive/refs/heads/main.zip
 ```
 
 The above command will install the extension under the `_extensions` subdirectory of your quarto
