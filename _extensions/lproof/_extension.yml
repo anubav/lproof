@@ -3,5 +3,5 @@ author: Anubav Vasudevan
 version: 1.0.0
 quarto-required: ">=1.2.0"
 contributes:
-  shortcodes:
+  filters:
     - lproof.lua
