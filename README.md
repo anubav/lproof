@@ -31,7 +31,7 @@ Object Language proofs are delimited within a fenced
 class `.olproof`. Every line of text in the block must be indented (at least) four spaces (or one
 tab) so as to ensure that quarto reads the text
 [verbatim](https://pandoc.org/chunkedhtml-demo/8.5-verbatim-code-blocks.html). Apart from this
-requirement, between elements in an lproof is largely ignored.
+requirement any space between elements in an lproof is ignored and ought to be utilized to improve readability.
 
 #### Sequential Proofs
 
@@ -52,3 +52,22 @@ for that line given by text enclosed within square brackets (`[` and `]`). For e
 When written to HTML this proof is rendered as follows:
 
 ![simple_lproof](simple_lproof.jpeg)
+
+#### Fitch-Style Proofs
+
+An lproof may also be formatted as a Fitch-style proof, where vertical line symbols (`|`) are used to
+indicate the depth of a line and underscores (`_`) are used to mark new hypotheses.
+
+```
+::: {.lproof} :::
+
+    1. |_   $P \rightarrow Q$
+    2. | |_ $\neg Q$
+    3. | | |_ $P$
+    4. | | |  $Q$
+    5. | | |  $\bot$                    [Modus Ponens: 2, 4]
+    6. | | $\neg P$                     [$\neg E$: 3-5]
+    7. | $\neg Q \rightarrow \neg P$    [$\rightarrow I$: 2-6]
+
+:::
+```
