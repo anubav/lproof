@@ -18,8 +18,12 @@ local function readString(str)
     --[[
         Read a string with all pandoc input options and return list of inlines
     ]]
-    doc = pandoc.read(str, "markdown")
-    return doc.blocks[1].content
+    if str == "" then
+        return ""
+    else
+        doc = pandoc.read(str, "markdown")
+        return doc.blocks[1].content
+    end
 end
 
 local function readStringAsMath(str)
@@ -41,6 +45,17 @@ local function proofLineTable(lineNumber, depth, isHypothesis, formula, justific
         isHypothesis = isHypothesis,
         formula = formula,
         justification = justification
+    }
+end
+
+local function ellipsesLine()
+    return {
+        lineIndex = "$\\vdots$",
+        lineNumber = "",
+        depth = 0,
+        formula = "$\\vdots$",
+        justification = "",
+        isEllipses = true
     }
 end
 
@@ -69,10 +84,16 @@ local function parseProof(proofStr)
     local justification = ("[" * S * lpeg.C((lpeg.P(1) - lpeg.S "]") ^ 1) / trimRight * "]" * S) ^ -1
 
     -- Pattern for a line in a proof
-    local proofLine = lineNumber * depth * isHypothesis * formula * justification * (lpeg.P("\n") + -1)
+    local ellipses = S * "..." * S
+    local proofLine = lineNumber * depth * isHypothesis * formula * justification
+    quarto.log.output(ellipses:match("      ...    "))
+    quarto.log.output(proofLine:match("    ...   "))
+    proofLine = ((proofLine / proofLineTable) + (ellipses / ellipsesLine)) * (lpeg.P("\n") + -1)
+    --local proofLine = (lineNumber * depth * isHypothesis * formula * justification /
+    --proofLineTable) * (lpeg.P("\n") + -1)
 
     -- Pattern for a proof
-    local proof = lpeg.Ct((proofLine / proofLineTable) ^ 1)
+    local proof = lpeg.Ct(proofLine ^ 1)
     return proof:match(proofStr)
 end
 
@@ -143,6 +164,9 @@ local function proofToHTML(t)
         line.attributes["data-depth"] = proofLine["depth"]
         if proofLine["isHypothesis"] == true then
             line.attributes["data-hypothesis"] = "true"
+        end
+        if proofLine["isEllipses"] == true then
+            line.attributes["data-ellipses"] = "true"
         end
         lines[#lines + 1] = line -- list of .proof-line divs
     end

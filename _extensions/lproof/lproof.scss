@@ -9,12 +9,14 @@ $proof-line-hl-transition: 0.2s linear;
 $line-number-width: 70px;
 $line-number-padding: 25px;
 $line-number-marker: ".";
+$ellipses-line-number-padding: 30px;
 
 $level-marker: 1px solid black;
 $level-indent-width: 20px;
 
 $formula-font-size: 80%;
 $formula-padding-left: 17px;
+$ellipses-formula-padding-left: 20px;
 $formula-padding-bottom: 0px;
 
 $justification-width: 300px;
@@ -33,19 +35,14 @@ $hypothesis-marker-width: 30px;
   margin-bottom: $proof-margin-bottom;
   width: $proof-width;
 
-  .highlight {
-    background-color: $proof-line-hl-color;
-    transition: background-color 0.3s $proof-line-hl-transition;
-  }
-
   // line in a proof
   %proof-line {
     display: grid;
     grid-template-rows: [line-top] $proof-line-height [line-bottom];
 
     &:hover {
-      background-color: lightgray;
-      transition: background-color 0.3s linear;
+      background-color: $proof-line-hl-color;
+      transition: background-color $proof-line-hl-transition;
     }
 
     .proof-formula {
@@ -96,6 +93,33 @@ $hypothesis-marker-width: 30px;
 
     .level-marker {
       border-left: $level-marker;
+    }
+  }
+
+  .proof-line[data-ellipses="true"] {
+    @extend %proof-line;
+    grid-template-columns: [line-start] $line-number-width [formula-start] 1fr [formula-end] $justification-width [line-end];
+
+    &:hover {
+      background-color: white;
+    }
+
+    .line-number {
+      justify-self: end;
+      align-self: center;
+      padding-right: $ellipses-line-number-padding;
+
+      &::after {
+        content: "";
+      }
+    }
+
+    .proof-formula {
+      grid-column: formula-start / formula-end;
+      grid-row: line-top / line-bottom;
+      font-size: 100%;
+      padding-left: $ellipses-formula-padding-left;
+      align-self: center;
     }
   }
 
