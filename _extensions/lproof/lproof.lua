@@ -49,9 +49,12 @@ local function proofLineTable(lineNumber, depth, isHypothesis, formula, justific
 end
 
 local function ellipsesLine()
+    --[[
+        Return an ellipsical proof line
+    ]]
     return {
         lineIndex = "$\\vdots$",
-        lineNumber = "",
+        lineNumber = false,
         depth = 0,
         formula = "$\\vdots$",
         justification = "",
@@ -69,7 +72,7 @@ local function parseProof(proofStr)
     -- Sub-Patterns for parsing lines in a proof
     local lineNumber = (S * (("(" * S * ((lpeg.P(1) - ")") ^ 1 / trimRight) * ")" * S) + lpeg.Cc(nil)) *
             ((lpeg.P(1) - ".") ^ 1 / trimRight) * "." * S) /
-        function(index, number) return { index = index, number = number } end
+        function(index, number) return { index = index, number = tonumber(number) } end
     local indentMarker = "|" * S
     local depth = (lpeg.C(indentMarker) ^ 1 / function(...) return #{ ... } end) + lpeg.Cc(0)
     local hypothesisMarker = "_" * S
@@ -86,16 +89,31 @@ local function parseProof(proofStr)
     -- Pattern for a line in a proof
     local ellipses = S * "..." * S
     local proofLine = lineNumber * depth * isHypothesis * formula * justification
-    quarto.log.output(ellipses:match("      ...    "))
-    quarto.log.output(proofLine:match("    ...   "))
     proofLine = ((proofLine / proofLineTable) + (ellipses / ellipsesLine)) * (lpeg.P("\n") + -1)
-    --local proofLine = (lineNumber * depth * isHypothesis * formula * justification /
-    --proofLineTable) * (lpeg.P("\n") + -1)
 
     -- Pattern for a proof
     local proof = lpeg.Ct(proofLine ^ 1)
     return proof:match(proofStr)
 end
+
+local function lineNumberKey(proof)
+    --[[
+        Return an array whose ith element is the index value for line number i (or i if no index
+        is given)
+    ]]
+    local lineNumberKey = {}
+    for _, proofLine in ipairs(proof) do
+        if proofLine["lineNumber"] then
+            if proofLine["lineIndex"] then
+                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineIndex"]
+            else
+                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineNumber"]
+            end
+        end
+    end
+    return lineNumberKey
+end
+
 
 local function proofToHTML(t)
     --[[
@@ -160,7 +178,9 @@ local function proofToHTML(t)
         -- Store line data as data-attributes for custom CSS formatting
         local line = pandoc.Div(content)
         line.classes = { "proof-line" }
-        line.attributes["data-number"] = proofLine["lineNumber"]
+        if proofLine["lineNumber"] then
+            line.attributes["data-number"] = proofLine["lineNumber"]
+        end
         line.attributes["data-depth"] = proofLine["depth"]
         if proofLine["isHypothesis"] == true then
             line.attributes["data-hypothesis"] = "true"
@@ -179,6 +199,8 @@ function Div(div)
     if div.classes[1] == "lproof" then
         local proofStr = div.content[1].text
         local proof = parseProof(proofStr)
+        quarto.log.output(proof)
+        quarto.log.output(lineNumberKey(proof))
         if lpeg.P("html"):match(FORMAT) then -- for HTML formatting
             local proofDiv
             if div.classes[2] == "as-math" then
