@@ -34,7 +34,43 @@ local function readStringAsMath(str)
     return doc.blocks[1].content
 end
 
-local function proofLineTable(lineNumber, depth, isHypothesis, formula, justification)
+local function lineNumberKey(proof)
+    --[[
+        Return an array whose ith element is the index value for line number i (or i if no index
+        is given)
+    ]]
+    local lineNumberKey = {}
+    for _, proofLine in ipairs(proof) do
+        if proofLine["lineNumber"] then
+            if proofLine["lineIndex"] then
+                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineIndex"]
+            else
+                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineNumber"]
+            end
+        end
+    end
+    return lineNumberKey
+end
+
+local function numArray(refs)
+    local nums = {}
+    for _, numEntry in ipairs(refs) do
+        if type(numEntry) == "number" then
+            nums[#nums + 1] = numEntry
+        else
+            for n = numEntry[1], numEntry[2] do
+                nums[#nums + 1] = n
+            end
+        end
+    end
+    numString = tostring(nums[1])
+    for _, n in ipairs({ table.unpack(nums, 2, #nums) }) do
+        numString = numString .. "," .. tostring(n)
+    end
+    return numString
+end
+
+local function proofLineTable(lineNumber, depth, isHypothesis, formula, justification, refs)
     --[[
         A table containing all the information to render a line in a proof
     ]]
@@ -44,7 +80,8 @@ local function proofLineTable(lineNumber, depth, isHypothesis, formula, justific
         depth = depth,
         isHypothesis = isHypothesis,
         formula = formula,
-        justification = justification
+        justification = justification,
+        refs = refs
     }
 end
 
@@ -80,11 +117,20 @@ local function parseProof(proofStr)
     local formula = lpeg.C((lpeg.P(1) - lpeg.S("[\n")) ^ 1) / trimRight
     --local justification = S * lpeg.C((lpeg.P(1) - lpeg.S ":]") ^ 1) / trimRight
     --local justification = S * lpeg.C((lpeg.P(1) - lpeg.S "]") ^ 1) / trimRight
-    --local num = loc.digit ^ 1
-    --local numEntry = (lpeg.C(num * S * "-" * S * num) + lpeg.C(num)) * S
-    --local numList = ":" * S * (lpeg.Ct(numEntry * ("," * S * numEntry) ^ 0) / commaSepStr)
+    local num = loc.digit ^ 1
+    local numEntry = (lpeg.Ct((num / tonumber) * S * "-" * S * (num / tonumber)) + (num / tonumber)) * S
+    local numList = ":" * S * lpeg.Ct(numEntry * ("," * S * numEntry) ^ 0)
+    --local test = ":    1, 2  -  3, 4, 6"
+    --quarto.log.output(numList:match(test))
     --local ground = ("[" * justification * (numList) ^ -1 * "]" * lpeg.P(" ") ^ 0) ^ -1
-    local justification = ("[" * S * lpeg.C((lpeg.P(1) - lpeg.S "]") ^ 1) / trimRight * "]" * S) ^ -1
+    --local justification = ("[" * S * lpeg.C((lpeg.P(1) - lpeg.S "]") ^ 1) / trimRight * "]" * S) ^ -1
+
+    local justification = ("[" * S * ((lpeg.P(1) - lpeg.S ":]") ^ 1 / trimRight) * numList ^ -1 * S * "]" * S) ^ -1
+
+    --local test = "[ Modus Ponens: 1, 2-3, 4, 5 ]"
+    --quarto.log.output(justification:match(test))
+
+
 
     -- Pattern for a line in a proof
     local ellipses = S * "..." * S
@@ -95,25 +141,6 @@ local function parseProof(proofStr)
     local proof = lpeg.Ct(proofLine ^ 1)
     return proof:match(proofStr)
 end
-
-local function lineNumberKey(proof)
-    --[[
-        Return an array whose ith element is the index value for line number i (or i if no index
-        is given)
-    ]]
-    local lineNumberKey = {}
-    for _, proofLine in ipairs(proof) do
-        if proofLine["lineNumber"] then
-            if proofLine["lineIndex"] then
-                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineIndex"]
-            else
-                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineNumber"]
-            end
-        end
-    end
-    return lineNumberKey
-end
-
 
 local function proofToHTML(t)
     --[[
@@ -185,6 +212,9 @@ local function proofToHTML(t)
         if proofLine["isHypothesis"] == true then
             line.attributes["data-hypothesis"] = "true"
         end
+        if proofLine["refs"] then
+            line.attributes["data-refs"] = numArray(proofLine["refs"])
+        end
         if proofLine["isEllipses"] == true then
             line.attributes["data-ellipses"] = "true"
         end
@@ -200,7 +230,6 @@ function Div(div)
         local proofStr = div.content[1].text
         local proof = parseProof(proofStr)
         quarto.log.output(proof)
-        quarto.log.output(lineNumberKey(proof))
         if lpeg.P("html"):match(FORMAT) then -- for HTML formatting
             local proofDiv
             if div.classes[2] == "as-math" then
