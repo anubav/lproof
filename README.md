@@ -114,7 +114,7 @@ block the additional class `.as-math`. For example:
 :::
 ```
 
-Note that math-mode must still be explcitly enforeced in the indices and justifications for each
+Note that math-mode must still be explcitly enforced in the indices and justifications for each
 line of the proof.
 
 #### CSS Styling of lproofs
