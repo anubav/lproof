@@ -80,7 +80,7 @@ This Fitch-style proof is rendered as follows:
 
 ![fitch_lproof](fitch_lproof.jpeg)
 
-#### Gentzen-style Sequent Proofs [TODO]
+#### Gentzen-style Proof Trees [TODO]
 
 ### Options and Customization
 
