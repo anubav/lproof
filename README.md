@@ -24,7 +24,7 @@ filters:
 ---
 ```
 
-### Usage
+## Basic Usage
 
 Object Language proofs are delimited within a fenced
 [div](https://quarto.org/docs/authoring/markdown-basics.html#divs-and-spans) block assigned the custom
@@ -33,7 +33,7 @@ tab) so as to ensure that quarto reads the text
 [verbatim](https://pandoc.org/chunkedhtml-demo/8.5-verbatim-code-blocks.html). Apart from this
 requirement any space between elements in an lproof is ignored and should be utilized to improve readability.
 
-#### Sequential Proofs
+### Sequential Proofs
 
 The most basic lproof is simply a sequence of numbered lines (formatted like a markdown [ordered list](https://quarto.org/docs/authoring/markdown-basics.html#lists)), each of which
 contains the formula appearing on that line of the proof followed by an optional justification
@@ -53,9 +53,10 @@ When written to HTML this proof is rendered as follows:
 
 ![simple_lproof](simple_lproof.jpeg)
 
-#### Fitch-Style Proofs
+### Fitch-Style Proofs
 
-The lproof extension also allows for the formatting of Fitch-style proofs. In this case, vertical line symbols (`|`) are used to indicate
+The lproof extension also allows for the inclusion of Fitch-style proofs in quarto projects. To
+represent such proofs, vertical line symbols (`|`) are used to indicate
 the depth of the subproof in which a line occurs and underscores (`_`) are used to mark new hypotheses
 initiating subproofs.
 
@@ -80,17 +81,17 @@ This Fitch-style proof is rendered as follows:
 
 ![fitch_lproof](fitch_lproof.jpeg)
 
-#### Gentzen-style Proof Trees [TODO]
+### Gentzen-style Proof Trees [TODO]
 
-### Options and Customization
+## Formatting Options
 
-#### Index Labeling [TODO]
+### Index Labeling [TODO]
 
-#### Key Substitutions [TODO]
+### Key Substitutions [TODO]
 
-#### Ellipses [TODO]
+### Ellipses [TODO]
 
-#### as-math Class
+### `as-math` Class
 
 It is often the case that every formula in a proof is to be rendered in math-mode. In such cases,
 instead of explicitly enforcing math-mode rendering by enclosing each formula within dollar signs
@@ -114,7 +115,9 @@ block the additional class `.as-math`:
 :::
 ```
 
-Note that math-mode must still be explcitly enforced in the indices and justifications for each
+Math-mode must still be explicitly enforced in the line numbers and justifications for each
 line of the proof.
 
-#### CSS Styling of lproofs
+## Customization
+
+### CSS Styling of lproofs
