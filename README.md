@@ -96,6 +96,7 @@ It is often the case that every formula in a proof is to be rendered in math-mod
 instead of explicitly enforcing math-mode rendering by enclosing each formula within dollar signs
 `$...$`, we can have all formulas render in math-mode automatically by adding to the containing div
 block the additional class `.as-math`:
+
 ```
 ::: {.lproof .as-math} :::
 
