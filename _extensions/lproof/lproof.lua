@@ -35,7 +35,8 @@ local function proofLineTable(lineNumber, depth, isHypothesis, formula, justific
         A table containing all the information to render a line in a proof
     ]]
     return {
-        lineNumber = lineNumber,
+        lineIndex = lineNumber["index"],
+        lineNumber = lineNumber["number"],
         depth = depth,
         isHypothesis = isHypothesis,
         formula = formula,
@@ -51,11 +52,13 @@ local function parseProof(proofStr)
     ]]
 
     -- Sub-Patterns for parsing lines in a proof
-    local lineNumber = S * lpeg.C((lpeg.P(1) - ".") ^ 1) * "." * S
+    local lineNumber = (S * (("(" * S * ((lpeg.P(1) - ")") ^ 1 / trimRight) * ")" * S) + lpeg.Cc(nil)) *
+            ((lpeg.P(1) - ".") ^ 1 / trimRight) * "." * S) /
+        function(index, number) return { index = index, number = number } end
     local indentMarker = "|" * S
     local depth = (lpeg.C(indentMarker) ^ 1 / function(...) return #{ ... } end) + lpeg.Cc(0)
     local hypothesisMarker = "_" * S
-    local isHypothesis = (hypothesisMarker / function() return true end) + lpeg.Cc(false)
+    local isHypothesis = (hypothesisMarker / function() return true end) + lpeg.Cc(nil)
     local formula = lpeg.C((lpeg.P(1) - lpeg.S("[\n")) ^ 1) / trimRight
     --local justification = S * lpeg.C((lpeg.P(1) - lpeg.S ":]") ^ 1) / trimRight
     --local justification = S * lpeg.C((lpeg.P(1) - lpeg.S "]") ^ 1) / trimRight
@@ -87,8 +90,13 @@ local function proofToHTML(t)
         -- Content describing a line in a proof
         local content = {}
 
-        -- Add line number to content
-        local lineNumber = pandoc.Span(readString(proofLine["lineNumber"]))
+        -- Add line number to content; display line index if supplied
+        local lineNumber
+        if proofLine["lineIndex"] then
+            lineNumber = pandoc.Span(readString(proofLine["lineIndex"]))
+        else
+            lineNumber = pandoc.Span(readString(proofLine["lineNumber"]))
+        end
         lineNumber.classes = { "line-number" }
         content[#content + 1] = lineNumber
 

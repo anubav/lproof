@@ -6,9 +6,9 @@ This is a simple linear proof
 
 ::: {.lproof} :::
 
-    1. $P$                  [Premise]
-    2. $P\rightarrow Q$     [Premise]
-    3. $Q$                  [Modus Ponens: 1, 2]
+          1. $P$                  [Premise]
+    ($n$) 2. $P\rightarrow Q$     [Premise]
+          3. $Q$                  [Modus Ponens: 1, 2]
 
 :::
 
