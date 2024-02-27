@@ -37,7 +37,7 @@ requirement any space between elements in an lproof is ignored and should be uti
 
 The most basic lproof is simply a sequence of numbered lines (formatted like a markdown [ordered list](https://quarto.org/docs/authoring/markdown-basics.html#lists)), each of which
 contains the formula appearing on that line of the proof followed by an optional justification
-for that line enclosed within square brackets (`[` and `]`). For example:
+for that line enclosed within square brackets (`[` and `]`):
 
 ```
 ::: {.lproof} :::
