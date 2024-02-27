@@ -55,8 +55,8 @@ When written to HTML this proof is rendered as follows:
 
 #### Fitch-Style Proofs
 
-An lproof may also correspond to a Fitch-style proof, with vertical line symbols (`|`) indicating
-the depth of the subproof in which a line occurs and underscores (`_`) used to mark new hypotheses
+The lproof extension also allows for the formatting of Fitch-style proofs. In this case, vertical line symbols (`|`) are used to indicate
+the depth of the subproof in which a line occurs and underscores (`_`) are used to mark new hypotheses
 initiating subproofs.
 
 ```
