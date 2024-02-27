@@ -13,7 +13,7 @@ quarto add https://github.com/anubav/lproof/archive/refs/heads/main.zip
 ```
 
 To enable the extension in your quarto project, add `lproof` to the list of filters in your
-\_quarto.yml file or your document front matter.
+\_quarto.yml file or document front matter.
 
 ```
 ---
@@ -27,17 +27,17 @@ filters:
 ### Usage
 
 Object Language proofs are delimited within a fenced
-[div](https://quarto.org/docs/authoring/markdown-basics.html#divs-and-spans) block with the custom
-class `.olproof`. Every line of text in the block must be indented (at least) four spaces (or one
+[div](https://quarto.org/docs/authoring/markdown-basics.html#divs-and-spans) block assigned the custom
+class `.lproof`. Every line of text in the block must be indented (at least) four spaces (or one
 tab) so as to ensure that quarto reads the text
 [verbatim](https://pandoc.org/chunkedhtml-demo/8.5-verbatim-code-blocks.html). Apart from this
-requirement any space between elements in an lproof is ignored and ought to be utilized to improve readability.
+requirement any space between elements in an lproof is ignored and should be utilized to improve readability.
 
 #### Sequential Proofs
 
 The most basic lproof is simply a sequence of numbered lines (formatted like a markdown [ordered list](https://quarto.org/docs/authoring/markdown-basics.html#lists)), each of which
-contains text corresponding to the content of that line of the proof followed by an optional justification
-for that line given by text enclosed within square brackets (`[` and `]`). For example:
+contains the formula appearing on that line of the proof followed by an optional justification
+for that line enclosed within square brackets (`[` and `]`). For example:
 
 ```
 ::: {.lproof} :::
@@ -55,19 +55,66 @@ When written to HTML this proof is rendered as follows:
 
 #### Fitch-Style Proofs
 
-An lproof may also be formatted as a Fitch-style proof, where vertical line symbols (`|`) are used to
-indicate the depth of a line and underscores (`_`) are used to mark new hypotheses.
+An lproof may also correspond to a Fitch-style proof, with vertical line symbols (`|`) indicating
+the depth of the subproof in which a line occurs and underscores (`_`) used to mark new hypotheses
+initiating subproofs.
 
 ```
 ::: {.lproof} :::
 
-    1. |_   $P \rightarrow Q$
-    2. | |_ $\neg Q$
-    3. | | |_ $P$
-    4. | | |  $Q$
-    5. | | |  $\bot$                    [Modus Ponens: 2, 4]
-    6. | | $\neg P$                     [$\neg E$: 3-5]
-    7. | $\neg Q \rightarrow \neg P$    [$\rightarrow I$: 2-6]
+    1.  |_  $p\rightarrow q$
+    2.  | |_  $q\rightarrow r$
+    3.  | | |_  $p$
+    4.  | | |   $p\rightarrow q$                                                        [Reiteration: 1]
+    5.  | | |   $q$                                                                     [Modus Ponens: 3, 4]
+    6.  | | |   $q\rightarrow r$                                                        [Reiteration: 2]
+    7.  | | |   $r$                                                                     [Modus Ponens: 5, 6]
+    8.  | |   $p\rightarrow r$                                                          [$\rightarrow$I: 3-7]
+    9.  |   $(q\rightarrow r)\rightarrow (p\rightarrow r)$                              [$\rightarrow$I: 2-8]
+    10.   $(p\rightarrow q)\rightarrow((q\rightarrow r)\rightarrow (p\rightarrow r))$   [$\rightarrow$I:1-9]
 
 :::
 ```
+
+This Fitch-style proof is rendered as follows:
+
+![fitch_lproof](fitch_lproof.jpeg)
+
+#### Gentzen-style Sequent Proofs [TODO]
+
+### Options and Customization
+
+#### Index Labeling [TODO]
+
+#### Key Substitutions [TODO]
+
+#### Ellipses [TODO]
+
+#### as-math Class
+
+It is often the case that every formula in a proof is to be rendered in math-mode. In such cases,
+instead of explicitly enforcing math-mode rendering by enclosing each formula within dollar signs
+`$...$`, we can have all formulas render in math-mode automatically by adding to the containing div
+block the additional class `.as-math`. For example:
+
+```
+::: {.lproof .as-math} :::
+
+    1.  |_  p\rightarrow q
+    2.  | |_  q\rightarrow r
+    3.  | | |_  p
+    4.  | | |   p\rightarrow q                                                        [Reiteration: 1]
+    5.  | | |   q                                                                     [Modus Ponens: 3, 4]
+    6.  | | |   q\rightarrow r                                                        [Reiteration: 2]
+    7.  | | |   r                                                                     [Modus Ponens: 5, 6]
+    8.  | |   p\rightarrow r                                                          [$\rightarrow$I: 3-7]
+    9.  |   (q\rightarrow r)\rightarrow (p\rightarrow r)                              [$\rightarrow$I: 2-8]
+    10.   (p\rightarrow q)\rightarrow((q\rightarrow r)\rightarrow (p\rightarrow r))   [$\rightarrow$I:1-9]
+
+:::
+```
+
+Note that math-mode must still be explcitly enforeced in the indices and justifications for each
+line of the proof.
+
+#### CSS Styling of lproofs
