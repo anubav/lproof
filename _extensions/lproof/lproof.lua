@@ -70,6 +70,19 @@ local function numArray(refs)
     return numString
 end
 
+local function refString(refs, key)
+    local str = ""
+    for _, numEntry in ipairs(refs) do
+        if type(numEntry) == "number" then
+            str = str .. ", " .. key[numEntry]
+        else
+            str = str .. ", " .. key[numEntry[1]] .. "-" .. key[numEntry[2]]
+        end
+    end
+    return string.sub(str, 3, #str) -- omit the leading  ", "
+end
+
+
 local function proofLineTable(lineNumber, depth, isHypothesis, formula, justification, refs)
     --[[
         A table containing all the information to render a line in a proof
@@ -196,8 +209,14 @@ local function proofToHTML(t)
         content[#content + 1] = formula
 
         -- Add justification to content
-        if proofLine["justification"] ~= nil then
-            local justification = pandoc.Span(readString(proofLine["justification"]))
+        if proofLine["justification"] then
+            local justificationStr = proofLine["justification"]
+            if proofLine["refs"] then
+                local refStr = refString(proofLine["refs"], lineNumberKey(proof))
+                quarto.log.output(refStr)
+                justificationStr = justificationStr .. ": " .. refStr
+            end
+            local justification = pandoc.Span(readString(justificationStr))
             justification.classes = { "proof-justification" }
             content[#content + 1] = justification
         end
