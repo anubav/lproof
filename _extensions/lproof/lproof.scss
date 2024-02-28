@@ -3,10 +3,12 @@ $proof-width: 100%;
 $proof-line-height: 25px;
 $proof-margin-bottom: 20px;
 
-$proof-line-hl-color: whitesmoke;
-$proof-line-hl-transition: 0.2s linear;
+$proof-line-background-hl-color: whitesmoke;
+$proof-line-background-hl-transition: 0.1s linear;
+$proof-line-border-hl-style: 1px solid lightgray;
 
-$line-number-width: 70px;
+$line-number-min-width: 10%;
+$line-number-max-width: 25%;
 $line-number-padding: 25px;
 $line-number-marker: ".";
 $ellipses-line-number-padding: 30px;
@@ -14,7 +16,7 @@ $ellipses-line-number-padding: 30px;
 $level-marker: 1px solid black;
 $level-indent-width: 20px;
 
-$formula-font-size: 80%;
+$formula-font-size: 100%;
 $formula-padding-left: 17px;
 $ellipses-formula-padding-left: 20px;
 $formula-padding-bottom: 0px;
@@ -41,8 +43,9 @@ $hypothesis-marker-width: 30px;
     grid-template-rows: [line-top] $proof-line-height [line-bottom];
 
     &:hover {
-      background-color: $proof-line-hl-color;
-      transition: background-color $proof-line-hl-transition;
+      background-color: $proof-line-background-hl-color;
+      transition: background-color $proof-line-background-hl-transition;
+      border-bottom: $proof-line-border-hl-style;
     }
 
     .proof-formula {
@@ -98,15 +101,20 @@ $hypothesis-marker-width: 30px;
 
   .proof-line[data-ellipses="true"] {
     @extend %proof-line;
-    grid-template-columns: [line-start] $line-number-width [formula-start] 1fr [formula-end] $justification-width [line-end];
+    grid-template-rows: [line-top] $proof-line-height [line-bottom];
+    grid-template-columns:
+      [line-start] minmax($line-number-min-width, $line-number-max-width)
+      [formula-start] 1fr [formula-end] $justification-width [line-end];
 
     &:hover {
       background-color: white;
+      border-bottom: 0px;
     }
 
     .line-number {
       justify-self: end;
       align-self: center;
+      padding-bottom: 5px;
       padding-right: $ellipses-line-number-padding;
 
       &::after {
@@ -125,19 +133,24 @@ $hypothesis-marker-width: 30px;
 
   .proof-line[data-depth="0"] {
     @extend %proof-line;
-    grid-template-columns: [line-start] $line-number-width [formula-start] 1fr [formula-end] $justification-width [line-end];
+    grid-template-columns:
+      [line-start] minmax($line-number-min-width, $line-number-max-width)
+      [formula-start] 1fr [formula-end] $justification-width [line-end];
   }
 
   .proof-line[data-depth="1"] {
     @extend %proof-line;
-    grid-template-columns: [line-start] $line-number-width [formula-start] 1fr [formula-end] $justification-width [line-end];
+    grid-template-columns:
+      [line-start] minmax($line-number-min-width, $line-number-max-width)
+      [formula-start] 1fr [formula-end] $justification-width [line-end];
   }
 
   @for $i from 2 through 10 {
     .proof-line[data-depth="#{$i}"] {
       @extend %proof-line;
       grid-template-columns:
-        [line-start] $line-number-width repeat(#{$i - 1}, $level-indent-width)
+        [line-start] minmax($line-number-min-width, $line-number-max-width)
+        repeat(#{$i - 1}, $level-indent-width)
         [formula-start] 1fr [formula-end] $justification-width [line-end];
     }
   }

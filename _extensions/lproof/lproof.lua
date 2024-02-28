@@ -43,9 +43,9 @@ local function lineNumberKey(proof)
     for _, proofLine in ipairs(proof) do
         if proofLine["lineNumber"] then
             if proofLine["lineIndex"] then
-                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineIndex"]
+                lineNumberKey[proofLine["lineNumber"]] = "$" .. proofLine["lineIndex"] .. "$"
             else
-                lineNumberKey[proofLine["lineNumber"]] = proofLine["lineNumber"]
+                lineNumberKey[proofLine["lineNumber"]] = "$" .. tostring(proofLine["lineNumber"]) .. "$"
             end
         end
     end
@@ -120,7 +120,7 @@ local function parseProof(proofStr)
     ]]
 
     -- Sub-Patterns for parsing lines in a proof
-    local lineNumber = (S * (("(" * S * ((lpeg.P(1) - ")") ^ 1 / trimRight) * ")" * S) + lpeg.Cc(nil)) *
+    local lineNumber = (S * (("[" * S * ((lpeg.P(1) - "]") ^ 1 / trimRight) * "]" * S) + lpeg.Cc(nil)) *
             ((lpeg.P(1) - ".") ^ 1 / trimRight) * "." * S) /
         function(index, number) return { index = index, number = tonumber(number) } end
     local indentMarker = "|" * S
@@ -128,22 +128,11 @@ local function parseProof(proofStr)
     local hypothesisMarker = "_" * S
     local isHypothesis = (hypothesisMarker / function() return true end) + lpeg.Cc(nil)
     local formula = lpeg.C((lpeg.P(1) - lpeg.S("[\n")) ^ 1) / trimRight
-    --local justification = S * lpeg.C((lpeg.P(1) - lpeg.S ":]") ^ 1) / trimRight
-    --local justification = S * lpeg.C((lpeg.P(1) - lpeg.S "]") ^ 1) / trimRight
     local num = loc.digit ^ 1
     local numEntry = (lpeg.Ct((num / tonumber) * S * "-" * S * (num / tonumber)) + (num / tonumber)) * S
     local numList = ":" * S * lpeg.Ct(numEntry * ("," * S * numEntry) ^ 0)
-    --local test = ":    1, 2  -  3, 4, 6"
-    --quarto.log.output(numList:match(test))
-    --local ground = ("[" * justification * (numList) ^ -1 * "]" * lpeg.P(" ") ^ 0) ^ -1
-    --local justification = ("[" * S * lpeg.C((lpeg.P(1) - lpeg.S "]") ^ 1) / trimRight * "]" * S) ^ -1
 
     local justification = ("[" * S * ((lpeg.P(1) - lpeg.S ":]") ^ 1 / trimRight) * numList ^ -1 * S * "]" * S) ^ -1
-
-    --local test = "[ Modus Ponens: 1, 2-3, 4, 5 ]"
-    --quarto.log.output(justification:match(test))
-
-
 
     -- Pattern for a line in a proof
     local ellipses = S * "..." * S
@@ -172,9 +161,9 @@ local function proofToHTML(t)
         -- Add line number to content; display line index if supplied
         local lineNumber
         if proofLine["lineIndex"] then
-            lineNumber = pandoc.Span(readString(proofLine["lineIndex"]))
+            lineNumber = pandoc.Span(readStringAsMath(proofLine["lineIndex"]))
         else
-            lineNumber = pandoc.Span(readString(proofLine["lineNumber"]))
+            lineNumber = pandoc.Span(readStringAsMath(proofLine["lineNumber"]))
         end
         lineNumber.classes = { "line-number" }
         content[#content + 1] = lineNumber
@@ -213,7 +202,6 @@ local function proofToHTML(t)
             local justificationStr = proofLine["justification"]
             if proofLine["refs"] then
                 local refStr = refString(proofLine["refs"], lineNumberKey(proof))
-                quarto.log.output(refStr)
                 justificationStr = justificationStr .. ": " .. refStr
             end
             local justification = pandoc.Span(readString(justificationStr))
