@@ -1,0 +1,47 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS Grid Test</title>
+    <link rel="stylesheet" href="grid-test.css" />
+  </head>
+  <body>
+    <div class="lproof">
+      <div class="proof-line" data-number="1" data-depth="0">
+        <span class="line-number"><span class="math inline">\(1\)</span></span>
+        <span class="proof-formula"
+          ><span class="math inline">\(P\)</span></span
+        >
+        <span class="proof-justification">Premise</span>
+      </div>
+      <div class="proof-line" data-number="2" data-depth="0">
+        <span class="line-number"><span class="math inline">\(n\)</span></span>
+        <span class="proof-formula"
+          ><span class="math inline">\(P\rightarrow Q\)</span></span
+        >
+        <span class="proof-justification">Premise</span>
+      </div>
+      <div class="proof-line" data-depth="0" data-ellipses="true">
+        <span class="line-number"
+          ><span class="math display">\[\vdots\]</span></span
+        >
+        <span class="proof-formula"
+          ><span class="math inline">\(\vdots\)</span></span
+        >
+        <span class="proof-justification"></span>
+      </div>
+      <div class="proof-line" data-number="3" data-depth="0" data-refs="1,2">
+        <span class="line-number"
+          ><span class="math inline">\(n+m+l+k+j-1\)</span></span
+        >
+        <span class="proof-formula"
+          ><span class="math inline">\(Q\)</span></span
+        >
+        <span class="proof-justification"
+          >Modus Ponens: <span class="math inline">\(1\)</span>,
+          <span class="math inline">\(n\)</span></span
+        >
+      </div>
+    </div>
+  </body>
+</html>
