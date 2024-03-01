@@ -141,7 +141,11 @@ local function parseProof(proofStr)
 
     -- Pattern for a proof
     local proof = lpeg.Ct(proofLine ^ 1)
-    return proof:match(proofStr)
+    local parsedProof = proof:match(proofStr)
+    for i, pl in ipairs(parsedProof) do
+        pl["test"] = i
+    end
+    return parsedProof
 end
 
 local function proofToHTML(t)
