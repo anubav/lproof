@@ -6,12 +6,12 @@ $proof-margin-bottom: 20px;
 $proof-line-background-hl-color: whitesmoke;
 $proof-line-background-hl-transition: 0.1s linear;
 $proof-line-border-hl-style: 1px solid lightgray;
+$ellipses-line-padding: 3px;
 
-$line-number-min-width: 10%;
-$line-number-max-width: 25%;
+$line-number-width: 15%;
+
 $line-number-padding: 25px;
 $line-number-marker: ".";
-$ellipses-line-number-padding: 30px;
 
 $level-marker: 1px solid black;
 $level-indent-width: 20px;
@@ -21,31 +21,33 @@ $formula-padding-left: 17px;
 $ellipses-formula-padding-left: 20px;
 $formula-padding-bottom: 0px;
 
-$justification-width: 300px;
-$justification-font-size: 90%;
+$justification-width: 25%;
+$justification-font-size: 80%;
 $justification-padding-left: 17px;
 $justification-padding-bottom: 0px;
 
-$hypothesis-marker-height: 20px;
-$hypothesis-marker-width: 30px;
+$hypothesis-marker-height: 0.8;
+$hypothesis-marker-width: 40px;
 
 // proof container
 .lproof {
   display: grid;
-  grid-auto-rows: $proof-line-height;
+  grid-auto-rows: max-content;
   margin: auto;
   margin-bottom: $proof-margin-bottom;
   width: $proof-width;
 
   // line in a proof
-  %proof-line {
+  .proof-line {
     display: grid;
-    grid-template-rows: [line-top] $proof-line-height [line-bottom];
+    grid-template-rows: [line-top] 1fr [line-bottom];
+    grid-template-columns:
+      [line-start] $line-number-width
+      [formula-start] 1fr [formula-end] $justification-width [line-end];
 
     &:hover {
       background-color: $proof-line-background-hl-color;
       transition: background-color $proof-line-background-hl-transition;
-      border-bottom: $proof-line-border-hl-style;
     }
 
     .proof-formula {
@@ -67,12 +69,12 @@ $hypothesis-marker-width: 30px;
     }
 
     .hypothesis-marker {
-      grid-column: formula-start / formula-end;
-      grid-row: line-top / line-bottom;
+      grid-column-start: formula-start;
+      grid-row-end: line-bottom;
       align-self: end;
       border-left: $level-marker;
       border-bottom: $level-marker;
-      height: $hypothesis-marker-height;
+      height: $hypothesis-marker-height * $proof-line-height;
       width: $hypothesis-marker-width;
     }
 
@@ -100,11 +102,10 @@ $hypothesis-marker-width: 30px;
   }
 
   .proof-line[data-ellipses="true"] {
-    @extend %proof-line;
+    @extend .proof-line;
     grid-template-rows: [line-top] $proof-line-height [line-bottom];
-    grid-template-columns:
-      [line-start] minmax($line-number-min-width, $line-number-max-width)
-      [formula-start] 1fr [formula-end] $justification-width [line-end];
+    padding-top: $ellipses-line-padding;
+    padding-bottom: $ellipses-line-padding;
 
     &:hover {
       background-color: white;
@@ -115,7 +116,7 @@ $hypothesis-marker-width: 30px;
       justify-self: end;
       align-self: center;
       padding-bottom: 5px;
-      padding-right: $ellipses-line-number-padding;
+      padding-right: $line-number-padding + 7px;
 
       &::after {
         content: "";
@@ -127,29 +128,16 @@ $hypothesis-marker-width: 30px;
       grid-row: line-top / line-bottom;
       font-size: 100%;
       padding-left: $ellipses-formula-padding-left;
+      justify-self: center;
       align-self: center;
     }
   }
 
-  .proof-line[data-depth="0"] {
-    @extend %proof-line;
-    grid-template-columns:
-      [line-start] minmax($line-number-min-width, $line-number-max-width)
-      [formula-start] 1fr [formula-end] $justification-width [line-end];
-  }
-
-  .proof-line[data-depth="1"] {
-    @extend %proof-line;
-    grid-template-columns:
-      [line-start] minmax($line-number-min-width, $line-number-max-width)
-      [formula-start] 1fr [formula-end] $justification-width [line-end];
-  }
-
   @for $i from 2 through 10 {
     .proof-line[data-depth="#{$i}"] {
-      @extend %proof-line;
+      @extend .proof-line;
       grid-template-columns:
-        [line-start] minmax($line-number-min-width, $line-number-max-width)
+        [line-start] $line-number-width
         repeat(#{$i - 1}, $level-indent-width)
         [formula-start] 1fr [formula-end] $justification-width [line-end];
     }
