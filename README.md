@@ -26,12 +26,12 @@ filters:
 
 ## Basic Usage
 
-Object Language proofs are delimited within a fenced
+Object Language proofs (lproofs) are delimited within a fenced
 [div](https://quarto.org/docs/authoring/markdown-basics.html#divs-and-spans) block assigned the custom
 class `.lproof`. Every line of text in the block must be indented (at least) four spaces (or one
 tab) so as to ensure that quarto reads the text
 [verbatim](https://pandoc.org/chunkedhtml-demo/8.5-verbatim-code-blocks.html). Apart from this
-requirement any space between elements in an lproof is ignored and should be utilized to improve readability.
+requirement any space between elements is ignored and should be utilized to improve readability.
 
 ### Sequential Proofs
 
@@ -85,11 +85,26 @@ This Fitch-style proof is rendered as follows:
 
 ## Formatting Options
 
-### Index Labeling [TODO]
+### Line Number Labeling [TODO]
 
-### Key Substitutions [TODO]
+All line numbers are read as strings to be rendered in math-mode. Thus, any arbitrary math
+expression can be used in place of a line number, e.g.:
+
+```
+::: {.lproof} :::
+
+    n.   $P$                  [Premise]
+    n+1. $P\rightarrow Q$     [Premise]
+    n+2. $Q$                  [Modus Ponens: 1, 2]
+
+:::
+```
 
 ### Ellipses [TODO]
+
+Ellipses may separate lines in an lproof to indicate an implied interpolation. For example:
+
+### Key Substitutions [TODO]
 
 ### `as-math` Class
 
