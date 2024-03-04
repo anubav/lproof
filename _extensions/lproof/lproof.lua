@@ -1,8 +1,8 @@
-quarto.doc.add_html_dependency({
+quarto.doc.add_html_dependency {
     name = "lproof",
     version = "1.0.0",
     stylesheets = { "lproof.min.css" }
-})
+}
 
 local loc = lpeg.locale()
 local S = (loc.space - lpeg.P("\n")) ^ 0 -- inline whitespace
@@ -16,7 +16,7 @@ end
 
 local function readString(str)
     --[[
-        Read a string with all pandoc input options and return list of inlines
+        Read a string with all pandoc input options and return generated list of inlines
     ]]
     if str == "" then
         return ""
@@ -28,70 +28,106 @@ end
 
 local function readStringAsMath(str)
     --[[
-        Read a string in implied math-mode with all pandoc input options and return list of inlines
+        Read a string in implied math-mode with all pandoc input options and return generated list of inlines
     ]]
-    doc = pandoc.read("$" .. str .. "$", "markdown")
-    return doc.blocks[1].content
+    if str == "" then
+        return ""
+    else
+        doc = pandoc.read("$" .. str .. "$", "markdown")
+        return doc.blocks[1].content
+    end
 end
 
-local function lineNumberKey(proof)
+local function cleanRef(ref)
     --[[
-        Return an array whose ith element is the index value for line number i (or i if no index
-        is given)
+        Collect end points of reference range and clean whitespace
     ]]
-    local lineNumberKey = {}
-    for _, proofLine in ipairs(proof) do
-        if proofLine["lineNumber"] then
-            if proofLine["lineIndex"] then
-                lineNumberKey[proofLine["lineNumber"]] = "$" .. proofLine["lineIndex"] .. "$"
-            else
-                lineNumberKey[proofLine["lineNumber"]] = "$" .. tostring(proofLine["lineNumber"]) .. "$"
-            end
-        end
-    end
-    return lineNumberKey
+    ref = trimRight(ref)
+    local first = ((1 - lpeg.P("--")) ^ 1) / trimRight
+    local range = lpeg.Ct(first * "--" * S * (lpeg.P(1) ^ 1 / trimRight))
+    local cleaned = range + lpeg.C(lpeg.P(1) ^ 1)
+    return cleaned:match(ref)
 end
 
-local function numArray(refs)
-    local nums = {}
-    for _, numEntry in ipairs(refs) do
-        if type(numEntry) == "number" then
-            nums[#nums + 1] = numEntry
-        else
-            for n = numEntry[1], numEntry[2] do
-                nums[#nums + 1] = n
-            end
+local function numFromIndex(index, proof)
+    --[[
+        Return the number of the indexed line in proof
+    ]]
+    for n, proofLine in ipairs(proof) do
+        if proofLine["index"] == index then
+            return n
         end
     end
-    numString = tostring(nums[1])
-    for _, n in ipairs({ table.unpack(nums, 2, #nums) }) do
-        numString = numString .. "," .. tostring(n)
-    end
-    return numString
+    return nil
 end
 
-local function refString(refs, key)
+local function refStr(refs)
+    --[[
+        return a formatted string of all cross-references
+    ]]
     local str = ""
-    for _, numEntry in ipairs(refs) do
-        if type(numEntry) == "number" then
-            str = str .. ", " .. key[numEntry]
+    for _, ref in ipairs(refs) do
+        if type(ref) == "string" then
+            str = str .. ", " .. ref
         else
-            str = str .. ", " .. key[numEntry[1]] .. "-" .. key[numEntry[2]]
+            str = str .. ", " .. ref[1] .. "\\unicode{x2013}" .. ref[2]
         end
     end
-    return string.sub(str, 3, #str) -- omit the leading  ", "
+    return string.sub(str, 3, #str) -- omit leading  ", "
 end
 
-
-local function proofLineTable(lineNumber, depth, isHypothesis, formula, justification, refs)
+local function numStr(refs, proof)
     --[[
-        A table containing all the information to render a line in a proof
+        return a comma-separated string of all cross-referenced line numbers
+    ]]
+    local nums = {}
+    for _, ref in ipairs(refs) do
+        if type(ref) == "string" then
+            if numFromIndex(ref, proof) then
+                nums[#nums + 1] = numFromIndex(ref, proof)
+            else
+                return nil
+            end
+        else
+            if numFromIndex(ref[1], proof) and numFromIndex(ref[2], proof) then
+                for n = numFromIndex(ref[1], proof), numFromIndex(ref[2], proof) do
+                    nums[#nums + 1] = n
+                end
+            else
+                return nil
+            end
+        end
+    end
+
+    local str = ""
+    for _, num in ipairs(nums) do
+        str = str .. "," .. num
+    end
+    return string.sub(str, 2, #str) -- omit leading  ","
+end
+
+local function crossReference(proof)
+    -- Add line numbers to lines in prloc
+    local updatedProof = {}
+    for n, proofLine in ipairs(proof) do
+        proofLine["line"] = n
+        if proofLine["refs"] then
+            proofLine["crossrefs"] = numStr(proofLine.refs, proof)
+            proofLine["refs"] = refStr(proofLine.refs)
+        end
+        updatedProof[n] = proofLine
+    end
+    return updatedProof
+end
+
+local function proofLineTable(index, depth, hypothesis, formula, justification, refs)
+    --[[
+        A table representation of a line in a proof
     ]]
     return {
-        lineIndex = lineNumber["index"],
-        lineNumber = lineNumber["number"],
+        index = index,
         depth = depth,
-        isHypothesis = isHypothesis,
+        hypothesis = hypothesis,
         formula = formula,
         justification = justification,
         refs = refs
@@ -100,15 +136,14 @@ end
 
 local function ellipsesLine()
     --[[
-        Return an ellipsical proof line
+        Return an ellipses proof line
     ]]
     return {
-        lineIndex = "$\\vdots$",
-        lineNumber = false,
+        index = "$\\vdots$",
         depth = 0,
-        formula = "$\\vdots$",
+        formula = "",
         justification = "",
-        isEllipses = true
+        ellipses = true
     }
 end
 
@@ -116,73 +151,56 @@ local function parseProof(proofStr)
     --[[
         Parse a text string representing a proof. Return an array of tables, each
         of which represents a line in the proof. The parsed proof can then be sent to ProofToHTML or
-        ProofToLaTeX for writing.
+        ProofToLaTeX for output specific filtering
     ]]
-
-    -- Sub-Patterns for parsing lines in a proof
-    local lineNumber = (S * (("[" * S * ((lpeg.P(1) - "]") ^ 1 / trimRight) * "]" * S) + lpeg.Cc(nil)) *
-            ((lpeg.P(1) - ".") ^ 1 / trimRight) * "." * S) /
-        function(index, number) return { index = index, number = tonumber(number) } end
+    -- Sub-patterns for parsing lines in a proof
+    local index = S * ((lpeg.P(1) - ".") ^ 1 / trimRight) * "." * S
     local indentMarker = "|" * S
     local depth = (lpeg.C(indentMarker) ^ 1 / function(...) return #{ ... } end) + lpeg.Cc(0)
     local hypothesisMarker = "_" * S
-    local isHypothesis = (hypothesisMarker / function() return true end) + lpeg.Cc(nil)
+    local hypothesis = (hypothesisMarker / function() return true end) + lpeg.Cc(nil)
     local formula = lpeg.C((lpeg.P(1) - lpeg.S("[\n")) ^ 1) / trimRight
-    local num = loc.digit ^ 1
-    local numEntry = (lpeg.Ct((num / tonumber) * S * "-" * S * (num / tonumber)) + (num / tonumber)) * S
-    local numList = ":" * S * lpeg.Ct(numEntry * ("," * S * numEntry) ^ 0)
-
-    local justification = ("[" * S * ((lpeg.P(1) - lpeg.S ":]") ^ 1 / trimRight) * numList ^ -1 * S * "]" * S) ^ -1
+    local ref = (lpeg.P(1) - lpeg.S ",]") ^ 1 / cleanRef
+    local refEntries = ":" * S * lpeg.Ct(ref * ("," * S * ref) ^ 0)
+    local justification = ("[" * S * ((lpeg.P(1) - lpeg.S ":]") ^ 1 / trimRight) * (refEntries ^ -1) * "]" * S) ^ -1
 
     -- Pattern for a line in a proof
     local ellipses = S * "..." * S
-    local proofLine = lineNumber * depth * isHypothesis * formula * justification
+    local proofLine = index * depth * hypothesis * formula * justification
     proofLine = ((proofLine / proofLineTable) + (ellipses / ellipsesLine)) * (lpeg.P("\n") + -1)
 
     -- Pattern for a proof
     local proof = lpeg.Ct(proofLine ^ 1)
     local parsedProof = proof:match(proofStr)
-    for i, pl in ipairs(parsedProof) do
-        pl["test"] = i
-    end
-    return parsedProof
+    return crossReference(parsedProof)
 end
 
-local function proofToHTML(t)
+local function proofToHTML(proof)
     --[[
       Create AST elements for HTML rendering of a proof. Proper rendering requires link to
       stylesheet proof.css
     ]]
-    setmetatable(t, { __index = { asMath = false } })
-    proof = t["proof"]
-    asMath = t["asMath"]
-
     local lines = {}
     for _, proofLine in ipairs(proof) do
         -- Content describing a line in a proof
         local content = {}
 
         -- Add line number to content; display line index if supplied
-        local lineNumber
-        if proofLine["lineIndex"] then
-            lineNumber = pandoc.Span(readStringAsMath(proofLine["lineIndex"]))
-        else
-            lineNumber = pandoc.Span(readStringAsMath(proofLine["lineNumber"]))
-        end
+        local lineNumber = pandoc.Span(readStringAsMath(proofLine.index))
         lineNumber.classes = { "line-number" }
         content[#content + 1] = lineNumber
 
         -- Add indent markers to content
-        for _ = 1, proofLine["depth"] - 1 do
+        for _ = 1, proofLine.depth - 1 do
             local levelMarker = pandoc.Span ""
             levelMarker.classes = { "level-marker" }
             content[#content + 1] = levelMarker
         end
 
         -- Add final indent marker to content
-        if proofLine["depth"] >= 1 then
+        if proofLine.depth >= 1 then
             local formulaMarker = pandoc.Span ""
-            if proofLine["isHypothesis"] then
+            if proofLine.hypothesis then
                 formulaMarker.classes = { "hypothesis-marker" }
             else
                 formulaMarker.classes = { "subproof-marker" }
@@ -191,22 +209,15 @@ local function proofToHTML(t)
         end
 
         -- Add formula to content
-        local formulaContent
-        if asMath then
-            formulaContent = readStringAsMath(proofLine["formula"])
-        else
-            formulaContent = readString(proofLine["formula"])
-        end
-        local formula = pandoc.Span(formulaContent)
+        local formula = pandoc.Span(readStringAsMath(proofLine.formula))
         formula.classes = { "proof-formula" }
         content[#content + 1] = formula
 
         -- Add justification to content
-        if proofLine["justification"] then
-            local justificationStr = proofLine["justification"]
-            if proofLine["refs"] then
-                local refStr = refString(proofLine["refs"], lineNumberKey(proof))
-                justificationStr = justificationStr .. ": " .. refStr
+        if proofLine.justification then
+            local justificationStr = proofLine.justification
+            if proofLine.refs then
+                justificationStr = justificationStr .. ": " .. "$" .. proofLine.refs .. "$"
             end
             local justification = pandoc.Span(readString(justificationStr))
             justification.classes = { "proof-justification" }
@@ -216,17 +227,12 @@ local function proofToHTML(t)
         -- Store line data as data-attributes for custom CSS formatting
         local line = pandoc.Div(content)
         line.classes = { "proof-line" }
-        if proofLine["lineNumber"] then
-            line.attributes["data-number"] = proofLine["lineNumber"]
+        line.attributes["data-number"] = proofLine.line
+        line.attributes["data-depth"] = proofLine.depth
+        if proofLine.crossrefs then
+            line.attributes["data-crossrefs"] = proofLine.crossrefs
         end
-        line.attributes["data-depth"] = proofLine["depth"]
-        if proofLine["isHypothesis"] == true then
-            line.attributes["data-hypothesis"] = "true"
-        end
-        if proofLine["refs"] then
-            line.attributes["data-refs"] = numArray(proofLine["refs"])
-        end
-        if proofLine["isEllipses"] == true then
+        if proofLine.ellipses == true then
             line.attributes["data-ellipses"] = "true"
         end
         lines[#lines + 1] = line -- list of .proof-line divs
@@ -238,17 +244,10 @@ end
 
 function Div(div)
     if div.classes[1] == "lproof" then
-        local proofStr = div.content[1].text
-        local proof = parseProof(proofStr)
-        quarto.log.output(proof)
+        local proof = parseProof(div.content[1].text)
+        --quarto.log.output(proof)
         if lpeg.P("html"):match(FORMAT) then -- for HTML formatting
-            local proofDiv
-            if div.classes[2] == "as-math" then
-                proofDiv = proofToHTML { proof = proof, asMath = true }
-            else
-                proofDiv = proofToHTML { proof = proof }
-            end
-            return proofDiv
+            return proofToHTML(proof)
         elseif lpeg.P("latex"):match(FORMAT) then
             return div -- for LaTeX formatting (TODO)
         end
