@@ -26,7 +26,7 @@ filters:
 
 ## Basic Usage
 
-Object Language proofs (lproofs) are delimited within a fenced
+Object-language proofs (lproofs) are delimited within a fenced
 [div](https://quarto.org/docs/authoring/markdown-basics.html#divs-and-spans) block assigned the custom
 class `.lproof`. Every line of text in the block must be indented (at least) four spaces (or one
 tab) so as to ensure that quarto reads the text
@@ -42,37 +42,37 @@ for that line enclosed within square brackets (`[` and `]`):
 ```
 ::: {.lproof} :::
 
-    1. $P$                  [Premise]
-    2. $P\rightarrow Q$     [Premise]
-    3. $Q$                  [Modus Ponens: 1, 2]
+    1. P                  [Premise]
+    2. P\rightarrow Q     [Premise]
+    3. Q                  [Modus Ponens: 1, 2]
 
 :::
 ```
 
+All formulas are automatically formatted in math-mode.
 When written to HTML this proof is rendered as follows:
 
 ![simple_lproof](simple_lproof.jpeg)
 
 ### Fitch-Style Proofs
 
-The lproof extension also allows for the inclusion of Fitch-style proofs in quarto projects. To
-represent such proofs, vertical line symbols (`|`) are used to indicate
+The lproof extension also allows for the formatting of Fitch-style proofs. To represent such proofs, vertical line symbols (`|`) are used to indicate
 the depth of the subproof in which a line occurs and underscores (`_`) are used to mark new hypotheses
 initiating subproofs.
 
 ```
 ::: {.lproof} :::
 
-    1.  |_  $p\rightarrow q$
-    2.  | |_  $q\rightarrow r$
-    3.  | | |_  $p$
-    4.  | | |   $p\rightarrow q$                                                        [Reiteration: 1]
-    5.  | | |   $q$                                                                     [Modus Ponens: 3, 4]
-    6.  | | |   $q\rightarrow r$                                                        [Reiteration: 2]
-    7.  | | |   $r$                                                                     [Modus Ponens: 5, 6]
-    8.  | |   $p\rightarrow r$                                                          [$\rightarrow$I: 3-7]
-    9.  |   $(q\rightarrow r)\rightarrow (p\rightarrow r)$                              [$\rightarrow$I: 2-8]
-    10.   $(p\rightarrow q)\rightarrow((q\rightarrow r)\rightarrow (p\rightarrow r))$   [$\rightarrow$I:1-9]
+    1.  |_ p\rightarrow q                                                           [Hypothesis]
+    2.  | |_ q\rightarrow r                                                         [Hypothesis]
+    3.  | | |_ p                                                                    [Hypothesis]
+    4.  | | |  p\rightarrow q                                                       [Reiteration: 1]
+    5.  | | |  q                                                                    [Modus Ponens: 3, 4]
+    6.  | | |  q\rightarrow r                                                       [Reiteration: 2]
+    7.  | | |  r                                                                    [Modus Ponens: 5, 6]
+    8.  | |  p\rightarrow r                                                         [$\rightarrow$ I: 3--7]
+    9.  |  (q\rightarrow r)\rightarrow(p\rightarrow r)                              [$\rightarrow$ I: 2--8]
+    10. |  (p\rightarrow q)\rightarrow((q\rightarrow r)\rightarrow(p\rightarrow r)) [$\rightarrow$ I: 1--9]
 
 :::
 ```
@@ -93,12 +93,14 @@ expression can be used in place of a line number, e.g.:
 ```
 ::: {.lproof} :::
 
-    n.   $P$                  [Premise]
-    n+1. $P\rightarrow Q$     [Premise]
-    n+2. $Q$                  [Modus Ponens: 1, 2]
+    n.   P                  [Premise]
+    n+1. P\rightarrow Q     [Premise]
+    n+2. Q                  [Modus Ponens: n, n+1]
 
 :::
 ```
+
+![simple_lproof_with_indexes](simple_lproof_2.jpeg)
 
 ### Ellipses [TODO]
 
