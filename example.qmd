@@ -33,3 +33,12 @@ filters:
     n+2. Q                  [Modus Ponens: n, n+1]
 
 :::
+
+::: {.lproof} :::
+
+    1. P                  [Premise]
+    2. P\rightarrow Q     [Premise]
+        ...
+    n. Q                  [Modus Ponens: 1, 2]
+
+:::

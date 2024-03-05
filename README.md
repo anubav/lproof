@@ -52,7 +52,7 @@ for that line enclosed within square brackets (`[` and `]`):
 All formulas are automatically formatted in math-mode.
 When written to HTML this proof is rendered as follows:
 
-![simple_lproof](simple_lproof.jpeg)
+![simple_lproof](images/simple.jpeg)
 
 ### Fitch-Style Proofs
 
@@ -70,24 +70,24 @@ initiating subproofs.
     5.  | | |  q                                                                    [Modus Ponens: 3, 4]
     6.  | | |  q\rightarrow r                                                       [Reiteration: 2]
     7.  | | |  r                                                                    [Modus Ponens: 5, 6]
-    8.  | |  p\rightarrow r                                                         [$\rightarrow$ I: 3--7]
-    9.  |  (q\rightarrow r)\rightarrow(p\rightarrow r)                              [$\rightarrow$ I: 2--8]
-    10. |  (p\rightarrow q)\rightarrow((q\rightarrow r)\rightarrow(p\rightarrow r)) [$\rightarrow$ I: 1--9]
+    8.  | |  p\rightarrow r                                                         [$\rightarrow\text{I}$: 3--7]
+    9.  |  (q\rightarrow r)\rightarrow(p\rightarrow r)                              [$\rightarrow\text{I}$: 2--8]
+    10. |  (p\rightarrow q)\rightarrow((q\rightarrow r)\rightarrow(p\rightarrow r)) [$\rightarrow\text{I}$: 1--9]
 
 :::
 ```
 
 This Fitch-style proof is rendered as follows:
 
-![fitch_lproof](fitch_lproof.jpeg)
+![fitch lproof](images/fitch.jpeg)
 
 ### Gentzen-style Proof Trees [TODO]
 
-## Formatting Options
+## Additional Formatting
 
 ### Line Numbers
 
-Line numbers are represented by strings rendered in math-mode. So, any arbitrary math
+Line numbers are represented by strings to be rendered in math-mode. Thus, any arbitrary math
 expression can be used to denote a line number, e.g.:
 
 ```
@@ -100,14 +100,15 @@ expression can be used to denote a line number, e.g.:
 :::
 ```
 
-![simple_lproof_with_indexes](simple_lproof_2.jpeg)
+![simple_lproof_with_indexes](images/simple_2.jpeg)
 
 ### Justifications and Line References
 
 Each line in an lproof may be given an optional justification, enclosed within square brackets. Justifications
 have two parts: (1) an explanation describing what justifies the inclusion of that line in the
 proof; and (2) an optional list of references to previous lines in the proof. The explanation is
-separated from the reference list by a colon `:`. Reference lists are given by a comma-separated
+separated from the reference list by a colon `:`. Explanations are not rendered in math-mode, so
+math content must be enclosed in dollar signs `$...$`. Reference lists are given by a comma-separated
 list of either
 individual line numbers, or line number ranges, the endpoints of which are separated by two hyphens
 `--`. The following are admissible justifications:
@@ -123,39 +124,25 @@ lines referenced in its justification. In order for cross-references to work, th
 be used for both the line number and
 the reference to that line.
 
-### Ellipses [TODO]
+### Ellipses
 
-Ellipses may separate lines in an lproof to indicate an implied interpolation. For example:
-
-### Key Substitutions [TODO]
-
-### `as-math` Class
-
-It is often the case that every formula in a proof is to be rendered in math-mode. In such cases,
-instead of explicitly enforcing math-mode rendering by enclosing each formula within dollar signs
-`$...$`, we can have all formulas render in math-mode automatically by adding to the containing div
-block the additional class `.as-math`:
+Ellipses `...` may be used in an lproof to indicate an implied interpolation. For example:
 
 ```
-::: {.lproof .as-math} :::
+::: {.lproof} :::
 
-    1.  |_  p\rightarrow q
-    2.  | |_  q\rightarrow r
-    3.  | | |_  p
-    4.  | | |   p\rightarrow q                                                        [Reiteration: 1]
-    5.  | | |   q                                                                     [Modus Ponens: 3, 4]
-    6.  | | |   q\rightarrow r                                                        [Reiteration: 2]
-    7.  | | |   r                                                                     [Modus Ponens: 5, 6]
-    8.  | |   p\rightarrow r                                                          [$\rightarrow$I: 3-7]
-    9.  |   (q\rightarrow r)\rightarrow (p\rightarrow r)                              [$\rightarrow$I: 2-8]
-    10.   (p\rightarrow q)\rightarrow((q\rightarrow r)\rightarrow (p\rightarrow r))   [$\rightarrow$I:1-9]
+    1. P                  [Premise]
+    2. P\rightarrow Q     [Premise]
+        ...
+    n. Q                  [Modus Ponens: 1, 2]
 
 :::
 ```
 
-Math-mode must still be explicitly enforced in the line numbers and justifications for each
-line of the proof.
+![simple_lproof_ellipses](images/ellipses.jpeg)
+
+### Key Substitutions [TODO]
 
 ## Customization
 
-### CSS Styling of lproofs
+### CSS Styling of lproofs [TODO]
