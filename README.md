@@ -6,14 +6,14 @@ quarto markdown.
 ## Installation
 
 The following command will install the extension under the `_extensions` subdirectory of your quarto
-project.
+project:
 
 ```sh
 quarto add https://github.com/anubav/lproof/archive/refs/heads/main.zip
 ```
 
 To enable the extension in your quarto project, add `lproof` to the list of filters in your
-\_quarto.yml file or document front matter.
+`\_quarto.yml` file or document front matter.
 
 ```
 ---
@@ -56,7 +56,7 @@ When written to HTML this proof is rendered as follows:
 
 ### Fitch-Style Proofs
 
-The lproof extension also allows for the formatting of Fitch-style proofs. To represent such proofs, vertical line symbols (`|`) are used to indicate
+The lproof extension also allows for the formatting of Fitch-style proofs. Repeated vertical line symbols (`|`) are used to indicate
 the depth of the subproof in which a line occurs and underscores (`_`) are used to mark new hypotheses
 initiating subproofs.
 
@@ -85,10 +85,10 @@ This Fitch-style proof is rendered as follows:
 
 ## Formatting Options
 
-### Line Number Labeling [TODO]
+### Line Numbers
 
-All line numbers are read as strings to be rendered in math-mode. Thus, any arbitrary math
-expression can be used in place of a line number, e.g.:
+Line numbers are represented by strings rendered in math-mode. So, any arbitrary math
+expression can be used to denote a line number, e.g.:
 
 ```
 ::: {.lproof} :::
@@ -101,6 +101,27 @@ expression can be used in place of a line number, e.g.:
 ```
 
 ![simple_lproof_with_indexes](simple_lproof_2.jpeg)
+
+### Justifications and Line References
+
+Each line in an lproof may be given an optional justification, enclosed within square brackets. Justifications
+have two parts: (1) an explanation describing what justifies the inclusion of that line in the
+proof; and (2) an optional list of references to previous lines in the proof. The explanation is
+separated from the reference list by a colon `:`. Reference lists are given by a comma-separated
+list of either
+individual line numbers, or line number ranges, the endpoints of which are separated by two hyphens
+`--`. The following are admissible justifications:
+
+`[Explanation]`
+
+`[Explanation: 1, 2, 3]`
+
+`[Explanation: 1, n--n+2, n+5]`
+
+In the HTML rendering of the proof, clicking on a line highlights all other
+lines referenced in its justification. In order for cross-references to work, the same string must
+be used for both the line number and
+the reference to that line.
 
 ### Ellipses [TODO]
 
