@@ -5,12 +5,10 @@ function getLine(n, lines) {
 }
 
 function crossrefs(line) {
-  if (line.dataset.crossrefs) {
-    const proof = line.parentNode
-    const lines = proof.querySelectorAll(".proof-line")
-    const refs = line.dataset.crossrefs.split(",").map((n) => Number(n))
-    return refs.map((ref) => getLine(ref, lines))
-  }
+  const proof = line.parentNode
+  const lines = proof.querySelectorAll(".proof-line")
+  const refs = line.dataset.crossrefs.split(",").map((n) => Number(n))
+  return refs.map((ref) => getLine(ref, lines))
 }
 
 function highlightPrimary(line) {
@@ -35,12 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
         line.addEventListener("mouseenter", (e) => {
           line = e.target
           highlightPrimary(line)
-          crossrefs(line).forEach(highlightSecondary)
+          if (line.dataset.crossrefs) {
+            crossrefs(line).forEach(highlightSecondary)
+          }
         })
         line.addEventListener("mouseleave", (e) => {
           line = e.target
           unhighlight(line)
-          crossrefs(line).forEach(unhighlight)
+          if (line.dataset.crossrefs) {
+            crossrefs(line).forEach(unhighlight)
+          }
         })
       }
     })
