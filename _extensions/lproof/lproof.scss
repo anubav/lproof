@@ -44,11 +44,6 @@ $hypothesis-marker-width: 40px;
       [line-start] $line-number-width
       [formula-start] 1fr [formula-end] $justification-width [line-end];
 
-    &:hover {
-      background-color: $proof-line-background-hl-color;
-      transition: background-color $proof-line-background-hl-transition;
-    }
-
     .proof-formula {
       grid-column: formula-start / formula-end;
       grid-row: line-top / line-bottom;
@@ -105,11 +100,6 @@ $hypothesis-marker-width: 40px;
     grid-template-rows: [line-top] $proof-line-height [line-bottom];
     padding-top: $ellipses-line-padding;
     padding-bottom: $ellipses-line-padding;
-
-    &:hover {
-      background-color: white;
-      border-bottom: 0px;
-    }
 
     .line-number {
       justify-self: end;

@@ -1,7 +1,8 @@
 quarto.doc.add_html_dependency {
     name = "lproof",
     version = "1.0.0",
-    stylesheets = { "lproof.min.css" }
+    stylesheets = { "lproof.min.css" },
+    scripts = { "lproof.js" },
 }
 
 local loc = lpeg.locale()
