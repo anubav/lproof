@@ -104,7 +104,7 @@ expression can be used to denote a line number, e.g.:
 
 ### Justifications and Line References
 
-Each line in an lproof may be given an optional justification, enclosed within square brackets. Justifications
+Each line in an lproof may be given an optional justification, enclosed within square brackets `[...]`. Justifications
 have two parts: (1) an explanation describing what justifies the inclusion of that line in the
 proof; and (2) an optional list of references to previous lines in the proof. The explanation is
 separated from the reference list by a colon `:`. Explanations are not rendered in math-mode, so
@@ -120,7 +120,7 @@ individual line numbers, or line number ranges, the endpoints of which are separ
 `[Explanation: 1, n--n+2, n+5]`
 
 In the HTML rendering of the proof, hovering over a line highlights that line as well as all other
-lines referenced in its justification. In order for cross-references to work, the same string must
+lines referenced in its justification. In order for cross-reference highlighting to work, the same string must
 be used for both the line number and the reference to that line.
 
 ### Ellipses
