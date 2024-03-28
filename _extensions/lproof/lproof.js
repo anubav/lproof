@@ -1,8 +1,10 @@
 function getLine(n, lines) {
+  // return the nth proof-line in a proof
   return Array.from(lines).find((l) => l.dataset.number == n)
 }
 
 function crossrefs(line) {
+  // return crossrefs for a proof-line
   const proof = line.parentNode
   const lines = proof.querySelectorAll(".proof-line")
   const refs = line.dataset.crossrefs.split(",").map((n) => Number(n))
