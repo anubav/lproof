@@ -119,10 +119,9 @@ individual line numbers, or line number ranges, the endpoints of which are separ
 
 `[Explanation: 1, n--n+2, n+5]`
 
-In the HTML rendering of the proof, clicking on a line highlights all other
+In the HTML rendering of the proof, hovering over a line highlights that line as well as all other
 lines referenced in its justification. In order for cross-references to work, the same string must
-be used for both the line number and
-the reference to that line.
+be used for both the line number and the reference to that line.
 
 ### Ellipses
 
