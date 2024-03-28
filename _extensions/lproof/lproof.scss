@@ -1,4 +1,4 @@
-/* Geometry */
+/* CSS Variables */
 $proof-width: 100%;
 $proof-line-height: 25px;
 $proof-margin-bottom: 20px;
@@ -27,6 +27,10 @@ $justification-padding-bottom: 0px;
 
 $hypothesis-marker-height: 0.8;
 $hypothesis-marker-width: 40px;
+
+$primary-hl-color: lightgray;
+$primary-hl-weight: normal;
+$secondary-hl-color: whitesmoke;
 
 // proof container
 .lproof {
@@ -130,5 +134,16 @@ $hypothesis-marker-width: 40px;
         repeat(#{$i - 1}, $level-indent-width)
         [formula-start] 1fr [formula-end] $justification-width [line-end];
     }
+  }
+
+  .hl-primary {
+    background-color: $primary-hl-color;
+    font-weight: $primary-hl-weight;
+    transition: background-color 0.1s linear;
+  }
+
+  .hl-secondary {
+    background-color: $secondary-hl-color;
+    transition: background-color 0.1s linear;
   }
 }
