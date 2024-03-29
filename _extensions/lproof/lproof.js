@@ -1,6 +1,6 @@
 function getLine(n, lines) {
   // return the nth proof-line in a proof
-  return Array.from(lines).find((l) => l.dataset.number == n)
+  return [...lines].find((l) => l.dataset.number == n)
 }
 
 function crossrefs(line) {
