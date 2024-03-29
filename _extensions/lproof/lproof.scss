@@ -1,11 +1,10 @@
 /* CSS Variables */
 $proof-width: 100%;
-$proof-line-height: 25px;
+$proof-line-height: 30px;
 $proof-margin-bottom: 20px;
 
 $proof-line-background-hl-color: whitesmoke;
 $proof-line-background-hl-transition: 0.1s linear;
-$proof-line-border-hl-style: 1px solid lightgray;
 $ellipses-line-padding: 3px;
 
 $line-number-width: 15%;
@@ -25,7 +24,7 @@ $justification-font-size: 90%;
 $justification-padding-left: 17px;
 $justification-padding-bottom: 0px;
 
-$hypothesis-marker-height: 0.8;
+$hypothesis-marker-height: 0.7;
 $hypothesis-marker-width: 40px;
 
 $primary-hl-color: lightgray;
@@ -35,7 +34,7 @@ $secondary-hl-color: whitesmoke;
 // proof container
 .lproof {
   display: grid;
-  grid-auto-rows: max-content;
+  grid-auto-rows: $proof-line-height;
   margin: auto;
   margin-bottom: $proof-margin-bottom;
   width: $proof-width;
@@ -81,7 +80,7 @@ $secondary-hl-color: whitesmoke;
       grid-row: line-top / line-bottom;
       align-self: end;
       border-left: $level-marker;
-      height: $proof-line-height;
+      height: $proof-line-height + 2px;
     }
 
     .line-number {
