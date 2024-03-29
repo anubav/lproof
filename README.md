@@ -1,4 +1,4 @@
-# lproof Extension for Quarto
+# `lproof` Extension for Quarto
 
 This extension provides support for HTML and LaTeX rendering of object-language proofs (lproofs) in
 quarto markdown.
